@@ -39,12 +39,11 @@ services:
       dockerfile: InfluxDB-Dockerfile
       args:
         - buildenv=development
-        - influxdb_host=influxdb
     image: reponame_influxdb:dev
     ports:
       - 8083:8083
       - 8086:8086
-      - 8090:8090
+      - "22221:22221/udp"
     volumes:
       - type: bind
         source: $PWD/data

@@ -3,12 +3,12 @@ FROM influxdb:latest
 MAINTAINER admin@bitsofparag.com
 
 ARG buildenv=production
-ARG influxdb_host=127.0.0.1
-
 ENV BUILD_ENV=$buildenv
-ENV INFLUXDB_HOST=$influxdb_host
 
 EXPOSE 8083
 EXPOSE 8086
+EXPOSE 22221/udp
+
+RUN apt-get update && apt-get install -y tcpdump
 
 COPY ./config/influxdb.conf /etc/influxdb/influxdb.conf
