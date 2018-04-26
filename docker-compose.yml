@@ -1,26 +1,22 @@
 version: '3.2'
 
-volumes:
-  typesdb:
-
-
 services:
-  base_collectd:
-    container_name: reponame_base_collectd_dev
-    build:
-      context: .
-      dockerfile: Collectd-Dockerfile
-      args:
-        - buildenv=development
-        - influxdb_host=influxdb
-    image: reponame_base:dev
-    ports:
-      - "25826:25826/udp"
-    privileged: true
-    volumes:
-      - type: volume
-        source: typesdb
-        target: /usr/share/collectd
+  # base_collectd:
+  #   container_name: reponame_base_collectd_dev
+  #   build:
+  #     context: .
+  #     dockerfile: Collectd-Dockerfile
+  #     args:
+  #       - buildenv=development
+  #       - influxdb_host=influxdb
+  #   image: reponame_base:dev
+  #   ports:
+  #     - "25826:25826/udp"
+  #   privileged: true
+  #   volumes:
+  #     - type: volume
+  #       source: typesdb
+  #       target: /usr/share/collectd
 
 
   grafana:
@@ -53,9 +49,6 @@ services:
       - type: bind
         source: $PWD/data
         target: /var/lib/influxdb/data
-      - type: volume
-        source: typesdb
-        target: /usr/share/collectd
     environment:
       - INFLUXDB_ADMIN_ENABLED=true
       - INFLUXDB_ADMIN_USER=admin
@@ -65,7 +58,3 @@ services:
       - INFLUXDB_USER_PASSWORD=test123
       - INFLUXDB_DATA_ENGINE=tsm1
       - INFLUXDB_REPORTING_DISABLED=false
-    depends_on:
-      - base_collectd
-    links:
-      - base_collectd
