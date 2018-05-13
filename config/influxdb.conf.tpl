@@ -10,6 +10,6 @@
 
 [[collectd]]
   enabled = true
-  bind-address = ":22221"
-  database = "influxdb_test"
+  bind-address = ":8080"
+  database = "mydb"
   typesdb = "/var/lib/influxdb/data/types.db"

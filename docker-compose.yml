@@ -1,35 +1,51 @@
 version: '3.2'
 
+networks:
+  cig_nginx:
+    driver: bridge
+
 services:
-  # base_collectd:
-  #   container_name: reponame_base_collectd_dev
-  #   build:
-  #     context: .
-  #     dockerfile: Collectd-Dockerfile
-  #     args:
-  #       - buildenv=development
-  #       - influxdb_host=influxdb
-  #   image: reponame_base:dev
-  #   ports:
-  #     - "25826:25826/udp"
-  #   privileged: true
-  #   volumes:
-  #     - type: volume
-  #       source: typesdb
-  #       target: /usr/share/collectd
-
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: reponame_grafana_dev
+  collectd_client:
+    container_name: reponame_collectd_client_dev
+    build:
+      context: .
+      dockerfile: CollectdClient-Dockerfile
+      args:
+        - buildenv=development
+    image: reponame_collectd_client:dev
+    privileged: true
+    networks:
+      - cig_nginx
     ports:
-      - 3000:3000
-    environment:
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-    depends_on:
-      - influxdb
-    links:
-      - influxdb
+      - "8080:8080/udp"
+    command: collectd -C /etc/collectd.conf -f
+
+  api.local:
+    container_name: reponame_api_server
+    build:
+      context: .
+      dockerfile: Nginx-Dockerfile
+      args:
+        - buildenv=development
+    image: nginx:latest
+    ports:
+      - 22221:80
+    volumes:
+      - ~/Workspace/server:/usr/share/nginx/html
+    networks:
+      - cig_nginx
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: reponame_grafana_dev
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+  #   depends_on:
+  #     - influxdb
+  #   links:
+  #     - influxdb
 
 
   influxdb:
@@ -43,7 +59,6 @@ services:
     ports:
       - 8083:8083
       - 8086:8086
-      - "22221:22221/udp"
     volumes:
       - type: bind
         source: $PWD/data
@@ -57,3 +72,5 @@ services:
       - INFLUXDB_USER_PASSWORD=test123
       - INFLUXDB_DATA_ENGINE=tsm1
       - INFLUXDB_REPORTING_DISABLED=false
+    networks:
+      - cig_nginx

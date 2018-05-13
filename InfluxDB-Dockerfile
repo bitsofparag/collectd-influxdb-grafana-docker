@@ -5,10 +5,15 @@ MAINTAINER admin@bitsofparag.com
 ARG buildenv=production
 ENV BUILD_ENV=$buildenv
 
+EXPOSE 8080/udp
 EXPOSE 8083
 EXPOSE 8086
-EXPOSE 22221/udp
 
-RUN apt-get update && apt-get install -y tcpdump
+RUN apt-get update -y \
+    && apt-get install -y tcpdump curl net-tools
 
-COPY ./config/influxdb.conf /etc/influxdb/influxdb.conf
+COPY ./config/influxdb.conf.tpl /etc/influxdb/influxdb.conf
+COPY ./config/types.db /var/lib/influxdb/data/types.db
+COPY ./config/influxdb.env /etc/default/influxdb
+
+# When built, launch influxdb: CMD exec systemctl start influxdb

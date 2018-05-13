@@ -1,0 +1,11 @@
+FROM nginx:latest
+
+MAINTAINER admin@bitsofparag.com
+
+ARG buildenv=production
+ENV BUILD_ENV=$buildenv
+
+EXPOSE 8080
+EXPOSE 8086
+
+COPY ./config/nginx-influxdb.conf.tpl /etc/nginx/conf.d/influxdb.conf
