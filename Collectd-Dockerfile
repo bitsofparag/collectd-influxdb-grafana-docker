@@ -1,0 +1,30 @@
+FROM debian:jessie
+
+MAINTAINER admin@bitsofparag.com
+
+ARG buildenv=production
+ARG influxdb_host=localhost
+ARG monitoring_user=prod_user
+ARG monitoring_pass=prod_pass
+ARG serial_num=PROD-DEVICE-SERIAL-NUM
+
+ENV BUILD_ENV=$buildenv
+ENV INFLUXDB_HOST=$influxdb_host
+ENV MONITORING_USER=$monitoring_user
+ENV MONITORING_PASS=$monitoring_pass
+ENV SERIAL_NUM=$serial_num
+
+
+EXPOSE 25255/tcp
+EXPOSE 25255/udp
+EXPOSE 80
+EXPOSE 443
+
+RUN apt-get update \
+    && apt-get install -y curl tcpdump net-tools \
+    && echo "deb http://pkg.ci.collectd.org/deb jessie collectd-5.6" | tee /etc/apt/sources.list.d/pkg.ci.collectd.org.list \
+    && curl http://pkg.ci.collectd.org/pubkey.asc | apt-key add - \
+    && apt-get update -y \
+    && apt-get install -y collectd collectd-utils
+
+COPY ./config/collectd.conf.tpl /etc/collectd.conf

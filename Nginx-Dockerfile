@@ -1,11 +1,19 @@
-FROM nginx:latest
+FROM nginx:1.14.0
 
 MAINTAINER admin@bitsofparag.com
 
 ARG buildenv=production
 ENV BUILD_ENV=$buildenv
 
-EXPOSE 8080
+EXPOSE 8083
 EXPOSE 8086
+EXPOSE 3000
+EXPOSE 25255/udp
 
-COPY ./config/nginx-influxdb.conf.tpl /etc/nginx/conf.d/influxdb.conf
+RUN apt-get update -y \
+    && apt-get install -y tcpdump net-tools
+
+COPY ./config/nginx.conf.tpl /etc/nginx/nginx.conf
+COPY ./config/nginx-http.conf.tpl /etc/nginx/conf.d/influx-grafana-http.conf
+COPY ./config/nginx-stream.conf.tpl /etc/nginx/conf.d/influxdb-stream.conf
+COPY ./config/nginx.hosts.tpl /etc/hosts

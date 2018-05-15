@@ -10,6 +10,12 @@
 
 [[collectd]]
   enabled = true
-  bind-address = ":8080"
+  bind-address = ""
   database = "mydb"
   typesdb = "/var/lib/influxdb/data/types.db"
+
+[[udp]]
+  enabled = true
+  bind-address = ":8086"
+  database = "mydb"
+  batch-size = 100

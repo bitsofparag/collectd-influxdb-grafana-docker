@@ -3,52 +3,60 @@ version: '3.2'
 networks:
   cig_nginx:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - {subnet: "172.18.0.0/16"}
+
 
 services:
-  collectd_client:
-    container_name: reponame_collectd_client_dev
+  collectdserver.docker:
+    container_name: reponame_collectdserver_dev
     build:
       context: .
-      dockerfile: CollectdClient-Dockerfile
+      dockerfile: Collectd-Dockerfile
       args:
         - buildenv=development
-    image: reponame_collectd_client:dev
+        - monitoring_user=admin
+        - monitoring_pass=test1234
+        - serial_num=METR-MGATE-R2-123
+    image: reponame_collectdserver:dev
     privileged: true
     networks:
       - cig_nginx
-    ports:
-      - "8080:8080/udp"
-    command: collectd -C /etc/collectd.conf -f
+    command: ["collectd", "-C", "/etc/collectd.conf", "-f"]
 
-  api.local:
-    container_name: reponame_api_server
+
+  grafana.docker:
+    image: grafana/grafana:latest
+    container_name: reponame_grafana_dev
+    ports:
+      - 3000:3000
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    networks:
+      - cig_nginx
+
+
+  nginx.docker:
+    container_name: reponame_nginx_dev
     build:
       context: .
       dockerfile: Nginx-Dockerfile
       args:
         - buildenv=development
-    image: nginx:latest
     ports:
-      - 22221:80
+      - 80:80
+      - 443:443
+      - "25255:25255/udp"
+    image: reponame_nginx:dev
     volumes:
       - ~/Workspace/server:/usr/share/nginx/html
     networks:
       - cig_nginx
 
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   container_name: reponame_grafana_dev
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-  #   depends_on:
-  #     - influxdb
-  #   links:
-  #     - influxdb
 
-
-  influxdb:
+  influxdb.docker:
     container_name: reponame_influxdb_dev
     build:
       context: .
@@ -67,10 +75,9 @@ services:
       - INFLUXDB_ADMIN_ENABLED=true
       - INFLUXDB_ADMIN_USER=admin
       - INFLUXDB_ADMIN_PASSWORD=admin
-      - INFLUXDB_DB=influxdb_test
-      - INFLUXDB_USER=influxdb_test
-      - INFLUXDB_USER_PASSWORD=test123
-      - INFLUXDB_DATA_ENGINE=tsm1
+      - INFLUXDB_DB=mydb
+      - INFLUXDB_USER=testuser
+      - INFLUXDB_USER_PASSWORD=test1234
       - INFLUXDB_REPORTING_DISABLED=false
     networks:
       - cig_nginx

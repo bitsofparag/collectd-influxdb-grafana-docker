@@ -42,7 +42,7 @@ CollectInternalStats true
 #       Interval 60                                                          #
 #   </LoadPlugin>                                                            #
 #----------------------------------------------------------------------------#
-Interval     10
+Interval     60
 
 ##############################################################################
 # Logging                                                                    #
@@ -52,7 +52,13 @@ Interval     10
 # accessed.                                                                  #
 ##############################################################################
 
+LoadPlugin logfile
 LoadPlugin syslog
+
+<Plugin logfile>
+  LogLevel "info"
+  File "/var/log/collectd.log"
+</Plugin>
 
 <Plugin syslog>
 	LogLevel info
@@ -81,7 +87,9 @@ LoadPlugin interface
 LoadPlugin uptime
 LoadPlugin users
 
-Loadplugin network
+
+#Loadplugin network
+LoadPlugin write_http
 LoadPlugin processes
 
 ##############################################################################
@@ -124,13 +132,22 @@ LoadPlugin processes
 	IgnoreSelected false
 </Plugin>
 
-<Plugin uuid>
-	UUIDFile "/etc/machine-id"
-</Plugin>
+# <Plugin uuid>
+# 	UUIDFile "/etc/machine-id"
+# </Plugin>
 
-<Plugin network>
-  Server "0.0.0.0" "8080"
-  Server "influxdb" "8080"
+# <Plugin network>
+#   Server "10.0.1.137" "25255"
+# </Plugin>
+
+<Plugin write_http>
+  <Node "nginx_docker">
+    URL "http://nginx.docker/api/monitoring/"
+    Format "JSON"
+    User "%%%MONITORING_HOST%%%"
+    Password "%%%MONITORING_PASS%%%"
+    LogHttpError true
+  </Node>
 </Plugin>
 
 # End
