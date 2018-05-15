@@ -19,7 +19,7 @@ services:
         - buildenv=development
         - monitoring_user=admin
         - monitoring_pass=test1234
-        - serial_num=METR-MGATE-R2-123
+        - serial_num=DEVICE-UNIQUE-ID
     image: reponame_collectdserver:dev
     privileged: true
     networks:
