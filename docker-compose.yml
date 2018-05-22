@@ -52,6 +52,8 @@ services:
     image: reponame_nginx:dev
     volumes:
       - ~/Workspace/server:/usr/share/nginx/html
+    extra_hosts:
+      - "cloud_backend:192.168.178.34"
     networks:
       - cig_nginx
 

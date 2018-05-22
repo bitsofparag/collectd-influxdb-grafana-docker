@@ -16,4 +16,3 @@ RUN apt-get update -y \
 COPY ./config/nginx.conf.tpl /etc/nginx/nginx.conf
 COPY ./config/nginx-http.conf.tpl /etc/nginx/conf.d/influx-grafana-http.conf
 COPY ./config/nginx-stream.conf.tpl /etc/nginx/conf.d/influxdb-stream.conf
-COPY ./config/nginx.hosts.tpl /etc/hosts

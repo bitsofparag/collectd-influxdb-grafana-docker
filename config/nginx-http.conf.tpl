@@ -17,8 +17,13 @@ upstream influx {
 	keepalive 10;
 }
 
+upstream influxdb {
+	server influxdb.docker:8086;
+  server influxdb:8086;
+}
+
 upstream cloud_backend {
-  server 10.0.1.137:8000;
+  server cloud_backend:8000;
 }
 
 server {
@@ -26,14 +31,23 @@ server {
 	listen [::]:80;
 	server_name $hostname *.docker;
 
-  location /api/monitoring/ {
-    proxy_pass http://cloud_backend/api/monitoring/;
+  location /api/metrics/ {
+    proxy_pass http://cloud_backend/api/metrics/;
     proxy_redirect default;
     proxy_set_header Host $host;
 	  proxy_set_header X-Real-IP $remote_addr;
 	  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Authorization "Basic YWRtaW46dGVzdDEyMzQ=";
     access_log /var/log/nginx/ops-access.log cloud buffer=1024 flush=5m;
+  }
+
+  location /influxdb/ {
+    proxy_pass http://influxdb/;
+    proxy_redirect default;
+    proxy_set_header Host $host;
+	  proxy_set_header X-Real-IP $remote_addr;
+	  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    access_log /var/log/nginx/ops-access.log influx buffer=1024 flush=5m;
   }
 
   location /influx/ {

@@ -142,7 +142,7 @@ LoadPlugin processes
 
 <Plugin write_http>
   <Node "nginx_docker">
-    URL "http://nginx.docker/api/monitoring/"
+    URL "http://nginx.docker/api/metrics/"
     Format "JSON"
     User "%%%MONITORING_HOST%%%"
     Password "%%%MONITORING_PASS%%%"
